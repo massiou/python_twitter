@@ -85,21 +85,35 @@ class TwitterInstance(object):
         '''get tweets from user_list'''
         return [ follower.name for follower in self._instance.GetFollowers()]
 
-    def get_tweets_given_words_lists(self, words_list):
-        ''' get tweets regarding to word list'''
+    def get_tweets_given_words(self, words_list):
+        ''' get timeline tweets regarding to word list'''
         tweets = [ (status.id, status.text) for status in self.instance.GetHomeTimeline() \
                    if all([re.search(word, status.text) for word in words_list]) ]
         return tweets
 
+    def get_all_tweets_given_words(self, words_list):
+        ''' get all tweets regarding to word list'''
+        return self.instance.GetSearch(words_list)        
+
 if __name__ == '__main__':
 
+    # Create twitter instance
     mv_twitter = TwitterInstance()
 
-    tweets_to_rt = mv_twitter.get_tweets_given_words_lists(["word1", "word2"])
+    # get tweets from all tweets search
+    tweets_to_rt = mv_twitter.get_all_tweets_given_words(["concours", "RT", "Follow"])
 
     for tweet in tweets_to_rt:
-        logger.info('%s: %s', tweet[0], tweet[1])
-        mv_twitter.instance.PostRetweet(tweet[0])
+        logger.info('%s: %s', tweet.id, tweet.text)
+        try:
+            # RT
+            mv_twitter.instance.PostRetweet(tweet.id)
+            # Follow
+            mv_twitter.instance.CreateFriendship(tweet.GetUser())
+        except twitter.TwitterError as msg:
+            logger.error(msg)
+        except Exception as msg:
+            raise msg
     
 
 
