@@ -1,0 +1,10 @@
+{
+"KEYS": {
+        "consumer_key":"",
+        "consumer_secret": "",
+        "access_token_key": "",
+        "access_token_secret": ""
+        },
+"BLACKLIST_ID": [3070002521, 2604749570, 2831859980, 2745037656, 2922964594, 812525508, 1006049138],
+"FORBIDDEN_WORDS": ["DM SOLO", "DM solo", "SOLO DM", "solo dm", "dm solo", "direct message", "DIRECT MESSAGE"]
+}
