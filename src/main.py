@@ -96,9 +96,9 @@ class TwitterInstance(object):
                    if all([re.search(word, status.text) for word in words_list]) ]
         return tweets
 
-    def get_all_tweets_given_words(self, words_list, date_from):
+    def get_all_tweets_given_words(self, words_list, date_from=None):
         ''' get all tweets regarding to word list'''
-        return self.instance.GetSearch(term=words_list, lang='fr', result_type='mixed', count=100, until=date_from)        
+        return self.instance.GetSearch(term=words_list, lang='fr', result_type='recent', count=50, until=date_from)        
 
     def destroy_friendship(self, friend_id):
         logger.info('Destroy friendship: %d' % friend_id)
@@ -133,8 +133,8 @@ if __name__ == '__main__':
     date_from = time.strftime('%Y-%m-%d')
     #tweets_to_rt = mv_twitter.get_all_tweets_given_words(["rt+follow"], date_from)
     #tweets_to_rt += mv_twitter.get_all_tweets_given_words(["follow+rt"], date_from)
-    tweets_to_rt = mv_twitter.get_all_tweets_given_words(["Concours", "follow"], date_from)
-    tweets_to_rt += mv_twitter.get_all_tweets_given_words(["Gagner", "follow"], date_from)
+    tweets_to_rt = mv_twitter.get_all_tweets_given_words(["Concours", "follow"])
+    tweets_to_rt += mv_twitter.get_all_tweets_given_words(["Gagner", "follow"])
     for tweet in tweets_to_rt:
         # Exclude fordidden words
         if not any(word for word in FORBIDDEN_WORDS if word in tweet.text):
