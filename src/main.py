@@ -88,7 +88,7 @@ class TwitterInstance(object):
 
     def post_status(self, message):
         ''' post a status on time line'''
-            return self.instance.PostUpdate(message)
+        return self.instance.PostUpdate(message)
     def get_followers(self):
         '''get tweets from user_list'''
         return [ follower for follower in self._instance.GetFollowers()]
@@ -152,7 +152,7 @@ if __name__ == '__main__':
     if len(mv_twitter.friendIDs) > 1950:
         mv_twitter.destroy_old_friends(1949)
 
-    #Post a message
+    #Post a status
     random_message_index = random.randint(0, len(MESSAGES)-1)
     mv_twitter.post_status(MESSAGES[random_message_index])
 
