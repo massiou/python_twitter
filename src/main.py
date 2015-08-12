@@ -86,6 +86,9 @@ class TwitterInstance(object):
         '''get friends ID list'''
         return self._friendIDs
 
+    def post_status(self, message):
+        ''' post a status on time line'''
+            return self.instance.PostUpdate(message)
     def get_followers(self):
         '''get tweets from user_list'''
         return [ follower for follower in self._instance.GetFollowers()]
@@ -140,13 +143,18 @@ if __name__ == '__main__':
     print KEYS
     BLACKLIST_ID = ACCOUNT_GLOBALS['BLACKLIST_ID']
     FORBIDDEN_WORDS = ACCOUNT_GLOBALS['FORBIDDEN_WORDS']
+    MESSAGES = ACCOUNT_GLOBALS['MESSAGES']
+
     # Create twitter instance
     mv_twitter = TwitterInstance(KEYS)
 
     # Ensure number of friends is correct (twitter limit is 2000)
-
     if len(mv_twitter.friendIDs) > 1950:
         mv_twitter.destroy_old_friends(1949)
+
+    #Post a message
+    random_message_index = random.randint(0, len(MESSAGES)-1)
+    mv_twitter.post_status(MESSAGES[random_message_index])
 
     # get tweets from all tweets search
     date_from = time.strftime('%Y-%m-%d')
@@ -181,7 +189,7 @@ if __name__ == '__main__':
             if user_id not in BLACKLIST_ID:
                 try:
                 # RT
-                    time_to_wait = random.randint(5, 10)
+                    time_to_wait = random.randint(10, 30)
                     print 'wait: %d' % time_to_wait
                     time.sleep(time_to_wait)
                     mv_twitter.instance.PostRetweet(tweet_id)
