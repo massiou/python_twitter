@@ -63,9 +63,9 @@ class TwitterInstance(object):
     def __init__(self, keys):
         '''init my instance twitter'''
         print keys
-        self._instance = twitter.Api(consumer_key=str(keys['consumer_key']), \
-                                    consumer_secret=str(keys['consumer_secret']), \
-                                    access_token_key=str(keys['access_token_key']), \
+        self._instance = twitter.Api(consumer_key=str(keys['consumer_key']),
+                                    consumer_secret=str(keys['consumer_secret']),
+                                    access_token_key=str(keys['access_token_key']),
                                     access_token_secret=str(keys['access_token_secret']))
 
         self._timeline = self._instance.GetHomeTimeline()
@@ -153,18 +153,17 @@ if __name__ == '__main__':
         mv_twitter.destroy_old_friends(1949)
 
     #Post a status
-    random_message_index = random.randint(0, len(MESSAGES)-1)
-    mv_twitter.post_status(MESSAGES[random_message_index])
+    #random_message_index = random.randint(0, len(MESSAGES)-1)
+    #mv_twitter.post_status(MESSAGES[random_message_index])
 
     # get tweets from all tweets search
     date_from = time.strftime('%Y-%m-%d')
+    tweets_to_rt = mv_twitter.get_all_tweets_given_words(["Concours", "follow"], lang='fr', count=30, result_type='popular')
+    tweets_to_rt += mv_twitter.get_all_tweets_given_words(["Gagner", "follow"], lang='fr', count=30, result_type='popular')
+    tweets_to_rt += mv_twitter.get_all_tweets_given_words(["Win", "follow"], lang='en', count=30, result_type='popular')
 
-    tweets_to_rt = mv_twitter.get_all_tweets_given_words(["Concours", "follow"], lang='fr', count=20, result_type='popular')
-    tweets_to_rt += mv_twitter.get_all_tweets_given_words(["Concours", "follow"], lang='fr', count=20, result_type='recent')
-    tweets_to_rt += mv_twitter.get_all_tweets_given_words(["Gagner", "follow"], lang='fr', count=20, result_type='recent')
-    tweets_to_rt += mv_twitter.get_all_tweets_given_words(["Gagner", "follow"], lang='fr', count=20, result_type='popular')
-    #tweets_to_rt += mv_twitter.get_all_tweets_given_words(["win", "follow"], lang='en', count=100, result_type='popular')
-    #tweets_to_rt += mv_twitter.get_all_tweets_given_words(["win", "follow"], lang='en', count=100, result_type='recent')
+    my_timeline = mv_twitter.instance.GetUserTimeline('MassiouV')
+    ids_rt = [json.loads(str(cur_tweet.GetRetweeted_status()))["id"] for cur_tweet in my_timeline]
 
     logger.info("Length Tweets to RT: %d", len(tweets_to_rt))
     for index, tweet in enumerate(tweets_to_rt):
@@ -172,17 +171,21 @@ if __name__ == '__main__':
         logger.info('%d tweet index', index)
         text = tweet.text.lower()
         if not any(word for word in FORBIDDEN_WORDS if word in text) \
-           and not (text.startswith('rt ') or text.startswith('rt@')):
+           and not (text.startswith('rt @') or text.startswith('rt@')):
             if tweet.retweeted_status:
                 # the current tweet is a RT
                 rt_dict = json.loads(str(tweet.retweeted_status))
                 tweet_id = rt_dict.get('id', tweet.id)
                 user_id = rt_dict['user'].get('id')
+                continue
             else:
                 # it's an original tweet
                 tweet_id = tweet.id
                 tweet_user = json.loads(str(tweet.GetUser()))
                 user_id = tweet_user['id']
+                if tweet_id in ids_rt:
+                    logger.error("ALREADY TWEETED!!!")
+                    continue
 
             logger.info('%s: %s', tweet_id, tweet.text[:25])
 
@@ -195,6 +198,7 @@ if __name__ == '__main__':
                     mv_twitter.instance.PostRetweet(tweet_id)
                 except twitter.TwitterError as msg:
                     logger.error(msg)
+                    continue
                 except Exception as msg:
                     raise msg
                 # Follow
@@ -204,6 +208,7 @@ if __name__ == '__main__':
                         mv_twitter.instance.CreateFriendship(int(user_id))
                     except twitter.TwitterError as msg:
                         logger.error(msg)
+                        continue
                     except Exception as msg:
                         raise msg
                 else:
@@ -211,7 +216,7 @@ if __name__ == '__main__':
             else:
                 logger.warning('user is in blacklist: %d',  user_id)
         else:
-            logger.info('%d find a forbidden word in %s', index, tweet.text)
+            logger.info('%d find a forbidden word in %s', index, tweet.text[:25])
 
 
 
