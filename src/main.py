@@ -163,7 +163,8 @@ if __name__ == '__main__':
     tweets_to_rt += mv_twitter.get_all_tweets_given_words(["Win", "follow"], lang='en', count=30, result_type='popular')
 
     my_timeline = mv_twitter.instance.GetUserTimeline('MassiouV')
-    ids_rt = [json.loads(str(cur_tweet.GetRetweeted_status()))["id"] for cur_tweet in my_timeline]
+    ids_rt = [json.loads(str(cur_tweet.GetRetweeted_status()))["id"] for cur_tweet in my_timeline
+              if cur_tweet.GetRetweeted_status()]
 
     logger.info("Length Tweets to RT: %d", len(tweets_to_rt))
     for index, tweet in enumerate(tweets_to_rt):
